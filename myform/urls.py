@@ -18,7 +18,15 @@ from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static 
 from django.views.static import serve
+'''
+Description : Create an application to enable signup and login for different types of users. 
+              On login redirect users to their respective dashboard
+Types of users:Patient,Doctor
+The signup form : First name, lastname, Profile picture, username, Emailid, Password, 
+    Confirm Password,Address (Line1, city, state, pincode)
+    check to see if password and confirmpassword fields matches.
 
+'''
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('form.urls')),

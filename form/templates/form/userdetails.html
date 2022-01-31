@@ -30,25 +30,32 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Username</th>
+                        <!-- <th scope="col">Firstname</th>
+                        <th scope="col">Lastname</th> -->
+                        <th scope="col">Role</th>
                         <th scope="col">Email</th>
-                        <th scope="col">ContactNo.</th>
                         <th scope="col">Address</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">UpdatedAt</th>
-                        <th scope="col">CreatedAt</th>
+                        <th scope="col">City</th>
+                        <th scope="col">State</th>
+                        <th scope="col">Country</th>
+                        <th scope="col">Pincode</th>
                         
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <th scope="row">{{userdetails.id}}</th>
-                        <td>{{userdetails.name}}</a></td>
+                        <td>{{userdetails.username}}</a></td>
+                        <!-- <td>{{profiledetails.first_name}}</a></td>
+                        <td>{{profiledetails.last_name}}</a></td> -->
+                        <td>{{profiledetails.role}}</td>
                         <td>{{userdetails.email}}</td>
-                        <td>{{userdetails.phone}}</td>
-                        <td>{{userdetails.address}}</td>
-                        <td>{{userdetails.description}}</td>
-                        <td>{{userdetails.updated}}</td>
-                        <td>{{userdetails.created}}</td>
+                        <td>{{profiledetails.address_line1}}</td>
+                        <td>{{profiledetails.city}}</td>
+                        <td>{{profiledetails.state}}</td>
+                        <td>{{profiledetails.country}}</td>
+                        <td>{{profiledetails.pincode}}</td>
+                        
                         <td><a href="{% url 'updateuserdetails' userdetails.id %}">Update</a></td>
                         <td><a href="{% url 'deleteuserdetails' userdetails.id %}">Delete</a></td>
 

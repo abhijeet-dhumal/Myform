@@ -24,34 +24,13 @@
         
         <div class="container col-md-6" style="padding:30px;border:1px solid #aaa;margin-top: 10px;">
             <div class="container d-flex">
-                <h1>Users: </h1>
-                <a href="{% url 'updateuserdetails' current_user.id  %}" class="my-3"><span class="mx-4">@ {{current_user}}</span></a>
-                <a href="{% url 'logoutuser' %}" ><button class="btn btn-outline-danger mx-4 my-2">LogOut</button></a>
+                <h1>Hii {{current_user}}: </h1>
+                <!-- <a href="" class="my-3"><span class="mx-4">@ {{current_user}}</span></a>
+                <a href="" ><button class="btn btn-outline-danger mx-4 my-2">LogOut</button></a> -->
 
             </div>
             <hr>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Username</th>
-                        <th scope="col">Role</th>
-                        <th scope="col"></th>
-                        <th scope="col"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for profiledetail in profiledetails %}
-                    <tr>
-                        <th scope="row">{{profiledetail.id}}</th>
-                        <td><a href="{% url 'userdetails' profiledetail.id %}">{{profiledetail}}</a></td>
-                        <th scope="row">{{profiledetail.role}}</th>
-                        <td><a href="{% url 'updateuserdetails' profiledetail.id %}">Update</a></td>
-                        <td><a href="{% url 'deleteuserdetails' profiledetail.id %}">Delete</a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            
         </div>
         
     </div>

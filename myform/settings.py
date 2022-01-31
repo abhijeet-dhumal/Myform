@@ -1,3 +1,4 @@
+
 """
 Django settings for myform project.
 
@@ -9,6 +10,8 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+import django_heroku
+from decouple import config
 
 from pathlib import Path
 from django.contrib.messages import constants as messages
@@ -32,7 +35,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-w4h84^+3yp3izvqh%*wu^25!nj+wi!r*4%+k5#mo+fr+3odxr_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['my-user-authentication.herokuapp.com/','127.0.0.1']
 
@@ -96,6 +99,17 @@ DATABASES = {
     }
 }
 
+# ihave written this 
+import dj_database_url
+import os
+ON_HEROKU = os.environ.get('ON_HEROKU')
+if ON_HEROKU:
+    DATABASE_URL = 'postgres://uqicmqubcmjtvw:67c771c9ae8932fd060dcb68197ece8179eb0aa54fb0e5476f5a21ceb5b90bf1@ec2-35-170-123-64.compute-1.amazonaws.com:5432/d7r31kfle1luo4'
+
+else:
+    DATABASE_URL = 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')
+
+DATABASES = {'default': dj_database_url.config(default=DATABASE_URL)}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -132,9 +146,14 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
-
+import os
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
+MEDIA_ROOT =  os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressManifestStaticFilesStorage'
+django_heroku.settings(locals())

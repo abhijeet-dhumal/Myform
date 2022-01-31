@@ -11,39 +11,65 @@
 </head>
 
 <body>
-    <div class="container-fluid" >
-        <div class="container"
-            style="padding:30px; border:1px solid #aaa;width:50%;margin-top:5%;">
+    <div class="container-fluid">
+        <div class="container" style="padding:30px; border:1px solid #aaa;width:50%;margin-top:1%;">
             <div class="container">
                 <div class="container-fluid header" style="align-items: center;">
-                    <h3>SignUp</h3>
+                    <h3>Doctor SignUp</h3>
                     <hr>
-                </div>
-                <form action="" method="POST">
-                    {% csrf_token %}
-                    <p><label for="username">Username : &nbsp;</label>{{form1.username}}</p>
-                    <p><label for="email">Email : &nbsp;</label>{{form1.email}}</p>
-                    <p><label for="password">Password : &nbsp;</label>{{form1.password1}}</p>
-                    <p><label for="password">Confirm password : &nbsp;</label>{{form1.password2}}</p>
-                    <p><button type="submit">SignUp</button></p>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% if registerform.errors or profileform.errors %}
+                        {% for field in registerform %}
+                        {% for error in field.errors %}
+                        <div class="container my-2">
+                            <div class="alert {{ message.tags }} alert-dismissible " role="alert"
+                                style="border:1px solid #aaa;padding:20px;">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <p aria-hidden="true">&times;</p>
+                                </button>
+                                {{ error }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% endfor %}
+    
+                        {% for field in profileform %}
+                        {% for error in field.errors %}
+                        <div class="container my-2">
+                            <div class="alert {{ message.tags }} alert-dismissible " role="alert"
+                                style="border:1px solid #aaa;padding:20px;">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <p aria-hidden="true">&times;</p>
+                                </button>
+                                {{ error }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% endfor %}
+    
+                        {% endif %}
+                        {{registerform.as_p}}
+                        {{profileform.as_p}}
 
-                </form>
-                <p>If already registered, <a href="{% url 'LoginForm' %}">LogIn</a></p>
-            </div>
-            {% if form1.errors %}
-            {% for field in form1 %}
-            {% for error in field.errors %}
-            <div class="container my-2">
-                <div class="alert {{ message.tags }} alert-dismissible " role="alert" style="border:1px solid #aaa;padding:20px;">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    {{ error }}
+                        <!-- <p><label for="email">First name : &nbsp;</label>{{registerform.first_name}}</p>
+                        <p><label for="email">last name : &nbsp;</label>{{registerform.last_name}}</p>
+                        <p><label for="email">Email : &nbsp;</label>{{registerform.email}}</p>
+                        <p><label for="password">Password : &nbsp;</label>{{registerform.password1}}</p>
+                        <p><label for="password">Confirm password : &nbsp;</label>{{registerform.password2}}</p>
+                        <p><label for="username">Username : &nbsp;</label>{{registerform.username}}</p>
+                        <p><label for="username">Profile image: &nbsp;</label>{{profileform.image}}</p>
+                        <p><label class="my-3" for="address">Address Line1: &nbsp;</label>{{profileform.address_line1}}</p>
+                        <p><label class="my-3" for="image">City: &nbsp;</label>{{profileform.city}}</p>
+                        <p><label class="my-3" for="image">State: &nbsp;</label>{{profileform.state}}</p>
+                        <p><label class="my-3" for="image">Country: &nbsp;</label>{{profileform.country}}</p>
+                        <p><label class="my-3" for="image">Pincode: &nbsp;</label>{{profileform.pincode}}</p>
+     -->
+                        <p><button type="submit">SignUp</button></p>
+                    </form>
+                    <p>If already registered, <a href="{% url 'LoginForm' %}">LogIn</a></p>
                 </div>
             </div>
-            {% endfor %}
-            {% endfor %}
-            {% endif %}
 
         </div>
     </div>
