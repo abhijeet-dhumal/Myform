@@ -5,13 +5,19 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.LoginForm,name="LoginForm"),
-    path('signup/', views.register,name="SignUpForm"),
-    path('user_dashboard/', views.dashboard,name="dashboard"),
+    path('doctor_signup/', views.doctor_registerPage,name="doctor_registerPage"),
+    path('patient_signup/', views.patient_registerPage,name="patient_registerPage"),
+    # path('user_dashboard/', views.dashboard,name="dashboard"),
     path('logout/', views.logoutuser, name ='logoutuser'),
     path('usernames/', views.usernames,name="usernames"),
-    path('userdetails/<str:pk>/', views.UserDetails,name="userdetails"),
-    path('update_details/<str:pk>/',views.updateUserdetails,name="updateuserdetails"),
-    path('delete_details/<str:pk>/',views.deleteuserdetails,name="deleteuserdetails")
+    path('doctor_userdetails/<str:pk>/', views.doctor_details,name="doctordetails"),
+    path('patient_userdetails/<str:pk>/', views.patient_details,name="patientdetails"),
+    path('update_doctor_details/<str:pk>/',views.updatedoctordetails,name="updatedoctordetails"),
+    path('update_patient_details/<str:pk>/',views.updatepatientdetails,name="updatepatientdetails"),
+    path('delete_details/<str:pk>/',views.deletedoctordetails,name="deletedoctordetails"),
+    path('delete_details/<str:pk>/',views.deletepatientdetails,name="deletepatientdetails"),
+
+    path('blogs/',views.blogs,name="blogs")
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

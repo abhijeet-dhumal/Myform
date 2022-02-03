@@ -21,39 +21,69 @@
     on delete user details will be deleted 
     LogOut option  -->
     <div class="container" style="justify-content: center;align-items: center;margin-top: 5%;">
-        
+
         <div class="container col-md-6" style="padding:30px;border:1px solid #aaa;margin-top: 10px;">
             <div class="container d-flex">
                 <h1>Users: </h1>
-                <a href="{% url 'updateuserdetails' current_user.id  %}" class="my-3"><span class="mx-4">@ {{current_user}}</span></a>
-                <a href="{% url 'logoutuser' %}" ><button class="btn btn-outline-danger mx-4 my-2">LogOut</button></a>
+                <span class="mx-4 my-3">Hii @{{current_user}} !!!</span>
+                <a href="{% url 'blogs' %}" class="my-3 mx-3"><span
+                        style="border:1px solid grey;padding:5px;">Blogs</span></a>
+                <a href="{% url 'logoutuser' %}"><button class="btn btn-outline-danger mx-2 my-2">LogOut</button></a>
 
             </div>
             <hr>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Username</th>
-                        <th scope="col">Role</th>
-                        <th scope="col"></th>
-                        <th scope="col"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for profiledetail in profiledetails %}
-                    <tr>
-                        <th scope="row">{{profiledetail.id}}</th>
-                        <td><a href="{% url 'userdetails' profiledetail.id %}">{{profiledetail}}</a></td>
-                        <th scope="row">{{profiledetail.role}}</th>
-                        <td><a href="{% url 'updateuserdetails' profiledetail.id %}">Update</a></td>
-                        <td><a href="{% url 'deleteuserdetails' profiledetail.id %}">Delete</a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Username</th>
+                                <th scope="col">Role</th>
+                                <th scope="col"></th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for doctordetail in doctordetails %}
+                            <tr>
+                                <th scope="row">{{doctordetail.id}}</th>
+                                <td><a href="{% url 'doctordetails' doctordetail.id %}">{{doctordetail.name}}</a></td>
+                                <th scope="row">{{doctordetail.role}}</th>
+                            </tr>
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Username</th>
+                                <th scope="col">Role</th>
+                                <th scope="col"></th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for patientdetail in patientdetails %}
+                            <tr>
+                                <th scope="row">{{patientdetail.id}}</th>
+                                <td><a href="{% url 'patientdetails' patientdetail.id %}">{{patientdetail.name}}</a>
+                                </td>
+                                <th scope="row">{{patientdetail.role}}</th>
+                            </tr>
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-        
+
     </div>
     <!-- Optional JavaScript; choose one of the two! -->
 

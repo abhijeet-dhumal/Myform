@@ -32,10 +32,10 @@ def admins_only(view_func):
         if request.user.groups.exists():
             group = request.user.groups.all()[0].name
             if group == 'doctor' :
-                return redirect('usernames')
+                return redirect('userPage')
             elif group == 'patient' :
-                return redirect('usernames')
+                return redirect('userPage')
             elif group == 'admin' :
-                return redirect('usernames')
+                return redirect('admin_dashboard')
 
     return wrapper_func

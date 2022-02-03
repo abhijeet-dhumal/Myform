@@ -26,7 +26,8 @@
                             placeholder="Enter password" /></p>
                     <p><button type="submit">Login</button></p>
                 </form>
-                <p>If not registered, <a href="{% url 'SignUpForm' %}">SignUp</a></p>
+                <p>If not registered, <a href="{% url 'doctor_registerPage' %}">Doctors_SignUp</a> (for 'doctors' only)</p>
+                <p>If not registered, <a href="{% url 'patient_registerPage' %}">Patients_SignUp</a></p>
             </div>
             
         </div>
