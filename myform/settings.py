@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     'form.apps.FormConfig',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -98,6 +99,16 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'hospitality_management',
+#         'HOST': '127.0.0.1',
+#         'PORT': '3305',
+#         'USER': 'root',
+#         'PASSWORD': 'Abhijeet652@',
+#     }
+# }
 
 # ihave written this 
 import dj_database_url

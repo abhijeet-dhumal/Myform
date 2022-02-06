@@ -17,7 +17,9 @@ urlpatterns = [
     path('delete_details/<str:pk>/',views.deletedoctordetails,name="deletedoctordetails"),
     path('delete_details/<str:pk>/',views.deletepatientdetails,name="deletepatientdetails"),
 
-    path('blogs/',views.blogs,name="blogs")
+    path('blogs_view/',views.blogs_view,name="blogs_view"),
+    path('blogs_drafts/',views.blogs_drafts,name="blogs_drafts"),
+    path('blogs_update/<str:pk>',views.blogs_update,name="blogs_update")
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

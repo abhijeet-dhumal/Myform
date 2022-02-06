@@ -2,7 +2,8 @@ from django import contrib
 from django.shortcuts import render, redirect
 from django.forms import inlineformset_factory
 from django.db.models import Q
-from form.forms import DoctorForm, PatientForm, UserRegisterForm
+from form.filters import BlogFilter
+from form.forms import BlogForm, DoctorForm, PatientForm, UserRegisterForm
 # create your views here 
 from .models import *
 from django.contrib.auth.forms import UserCreationForm
@@ -10,6 +11,7 @@ from django.contrib.auth import authenticate ,login, logout
 from django.contrib.auth.decorators import *
 from django.contrib.auth.models import Group
 from django.http import HttpResponse
+from . import signals
 # for flash message
 from .decorators import *
 from django.contrib import messages
@@ -63,7 +65,7 @@ def patient_registerPage(request):
             form1.save()
             user = form1.save()
             user.refresh_from_db()  # load the profile instance created by the signal
-            profile = Patient.objects.create(user=user)
+            profile = Patient.objects.create(name=user.name)
             patient_reg_form = PatientForm(request.POST,request.FILES,instance=profile)
             patient_reg_form.full_clean()
             patient_reg_form.save()
@@ -103,19 +105,18 @@ def doctor_details(request,pk):
     userdetails=User.objects.get(id=pk)
     
     doctordetails=Doctor.objects.get(id=pk)
-    patientdetails=Patient.objects.get(id=pk)
     
-    context={'userdetails':userdetails,"doctordetails":doctordetails,'patientdetails':patientdetails}
+    context={'userdetails':userdetails,"doctordetails":doctordetails}
     return render(request,"form/doctor_userdetails.html",context)
 
 @login_required
 def patient_details(request,pk):
     userdetails=User.objects.get(id=pk)
     
-    doctordetails=Doctor.objects.get(id=pk)
+
     patientdetails=Patient.objects.get(id=pk)
     
-    context={'userdetails':userdetails,"doctordetails":doctordetails,'patientdetails':patientdetails}
+    context={'userdetails':userdetails,'patientdetails':patientdetails}
     return render(request,"form/patient_userdetails.html",context)
 
 @login_required    
@@ -189,8 +190,54 @@ def logoutuser(request):
     logout(request)
     return redirect('LoginForm')
 
+@login_required
+def blogs_view(request):
+    blogdetail=Blog.objects.filter(draft=False).all()
+    myFilter = BlogFilter(request.GET, queryset= blogdetail)
+    blogdetail = myFilter.qs
+    current_user=request.user
+    # imgs=Blog.objects.filter(title=blogdetail.title)
 
-def blogs(request):
-    context={}
-    return render(request,"form/blogs.html",context)
+    
+    context={'blogdetail':blogdetail,'current_user':current_user,'myfilter':myFilter}
+    return render(request,"form/blogs_view.html",context)
+
+@login_required
+def blogs_drafts(request):
+    blogdetail=Blog.objects.filter(draft=True).all()
+    myFilter = BlogFilter(request.GET, queryset= blogdetail)
+    blogdetail = myFilter.qs
+    current_user=request.user
+    # imgs=Blog.objects.filter(title=blogdetail.title)
+
+    
+    context={'blogdetail':blogdetail,'current_user':current_user,'myfilter':myFilter}
+    return render(request,"form/blogs_drafts.html",context)
+
+
+@login_required
+def blogs_update(request,pk):
+    blogdetail=Blog.objects.all()
+    blogform=BlogForm(request.POST)
+    if request.method=='POST':
+        blogform=BlogForm(request.POST)
+        if blogform.is_valid():
+            action = blogform.cleaned_data.get('complete')
+            blogform.save()
+            # if action=='Post content as a blog':
+            # else:
+            #     seconds = Blog.objects.all()
+            #     for second in seconds:
+            #         for i in second.objects.filter(link_field=second):
+            #             print(i.id)
+            #     blog_content = blogform.cleaned_data.get('content')
+            #     blog_id=blogform.cleaned_data.get('id')
+            #     print("id: ",blog_id)
+            #     pass
+            return redirect('usernames')
+        else:
+            messages.warning(request,f'Username or Password is incorrect !!! ')
+    
+    context={'blogdetail':blogdetail,'blogform':blogform}
+    return render(request,"form/blogs_update.html",context)
 

@@ -2,7 +2,7 @@ from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from django.contrib.auth.models import User
-from .models import Doctor, Patient
+from .models import Blog, Doctor, Patient
 from django.contrib.auth import password_validation
 
 class UserRegisterForm(UserCreationForm):
@@ -23,3 +23,9 @@ class DoctorForm(ModelForm):
     class Meta:
         model = Doctor
         fields = ['name','role','phone','image','address_line1','city', 'state', 'country','pincode']
+
+class BlogForm(forms.ModelForm):
+    class Meta:
+        model = Blog
+        fields = '__all__'
+

@@ -22,19 +22,21 @@
     LogOut option  -->
     <div class="container" style="justify-content: center;align-items: center;margin-top: 5%;">
 
-        <div class="container col-md-6" style="padding:30px;border:1px solid #aaa;margin-top: 10px;">
+        <div class="container" style="padding:30px;border:1px solid #aaa;margin-top: 10px;">
             <div class="container d-flex">
                 <h1>Users: </h1>
-                <span class="mx-4 my-3">Hii @{{current_user}} !!!</span>
-                <a href="{% url 'blogs' %}" class="my-3 mx-3"><span
+                <a href="{% url 'blogs_view' %}" class="my-3" style="margin-left: 30vw;"><span
                         style="border:1px solid grey;padding:5px;">Blogs</span></a>
-                <a href="{% url 'logoutuser' %}"><button class="btn btn-outline-danger mx-2 my-2">LogOut</button></a>
+                <a href="{% url 'logoutuser' %}"><button class="btn btn-outline-danger mx-1 my-2">LogOut</button></a>
 
             </div>
+            <span class="mx-4 my-3">Hii @{{current_user}} !!!</span>
             <hr>
 
             <div class="row">
                 <div class="col-md-6">
+                    <div class="container-fluid" style="justify-content: center;text-align: center;"><h5>Doctors</h5></div>
+                    <hr>
                     <table class="table">
                         <thead>
                             <tr>
@@ -51,6 +53,9 @@
                                 <th scope="row">{{doctordetail.id}}</th>
                                 <td><a href="{% url 'doctordetails' doctordetail.id %}">{{doctordetail.name}}</a></td>
                                 <th scope="row">{{doctordetail.role}}</th>
+                                <th scope="row"><a href="{% url 'blogs_update' doctordetail.id %}"><span
+                                    >Add_Blog</span></a>
+                            </th>
                             </tr>
                             {% endfor %}
 
@@ -58,6 +63,8 @@
                     </table>
                 </div>
                 <div class="col-md-6">
+                    <div class="container-fluid" style="justify-content: center;text-align: center;"><h5>Patients</h5></div>
+                    <hr>
                     <table class="table">
                         <thead>
                             <tr>
