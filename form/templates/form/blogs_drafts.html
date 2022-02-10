@@ -29,6 +29,8 @@
                     <thead>
                         <tr>
                             <th scope="col">#</th>
+
+                            <th scope="col">Image</th>
                             <th scope="col">Username</th>
                             <th scope="col">Title</th>
                             <th scope="col">Category</th>
@@ -42,6 +44,8 @@
                         {% for detail in blogdetail %}
                         <tr>
                             <th scope="row">{{detail.id}}</th>
+                            <th><img src="/media/{{detail.image}}" alt="Profile_pic" style="max-width:10vw;border:1px solid grey;padding:5px;"></th>
+
                             <th scope="row">{{detail.name}}</th>
                             <th scope="row">{{detail.title}}</th>
                             <th scope="row">{{detail.category}}</th>

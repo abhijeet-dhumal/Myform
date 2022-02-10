@@ -19,7 +19,11 @@ urlpatterns = [
 
     path('blogs_view/',views.blogs_view,name="blogs_view"),
     path('blogs_drafts/',views.blogs_drafts,name="blogs_drafts"),
-    path('blogs_update/<str:pk>',views.blogs_update,name="blogs_update")
+    path('blogs_update/<str:pk>',views.blogs_update,name="blogs_update"),
+
+    path('doctors_list/', views.doctorslist,name="doctorslist"),
+    path('appointment_form/', views.appointment_form,name="appointment_form"),
+    path('appointments/', views.appointments,name="appointments")
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

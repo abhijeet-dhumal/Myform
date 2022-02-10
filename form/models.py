@@ -73,3 +73,19 @@ class Blog(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+
+
+class Appointment(models.Model):
+    doctor = models.ForeignKey(Doctor, null=True, on_delete= models.CASCADE)
+    patient = models.ForeignKey(Patient, null=True, on_delete= models.CASCADE)
+    speciality=models.CharField("Required speciality ", max_length=50, blank=True)
+    # date_of_appointment=models.DateField("Date of appointment ", max_length=50, blank=True)
+    Starttime_of_appointment=models.DateTimeField("Start-time of appointment ", max_length=50, blank=True)
+
+    def __str__(self):
+        if self.speciality==None:
+            return "ERROR-DOCTOR SPECIALTY IS NULL"
+        return self.speciality
+        
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)

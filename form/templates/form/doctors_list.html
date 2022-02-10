@@ -21,49 +21,48 @@
     on delete user details will be deleted 
     LogOut option  -->
     <div class="container" style="justify-content: center;align-items: center;margin-top: 5%;">
-        
+
         <div class="container col-md-12" style="padding:30px;border:1px solid #aaa;margin-top: 10px;">
-            <h1>User-Details : </h1><a href="{% url 'doctorslist'%}" class="mx-3" style="border:1px solid grey;padding:5px;">Book appointment</a>
+            <h1>Doctors-Details : </h1>
+            <a href="{% url 'blogs_drafts' %}" class="my-3 mx-1"><span
+                    style="border:1px solid grey;padding:5px;">Drafts</span></a>
+
             <hr>
             <table class="table">
                 <thead>
                     <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Username</th>
-                        <!-- <th scope="col">Firstname</th>
-                        <th scope="col">Lastname</th> -->
-                        <th scope="col">Role</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Address</th>
+                        <th scope="col">Image</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Phone</th>                        
                         <th scope="col">City</th>
                         <th scope="col">State</th>
                         <th scope="col">Country</th>
-                        <th scope="col">Pincode</th>
-                        
                     </tr>
                 </thead>
                 <tbody>
+
+                    {% for detail in doctordetails %}
                     <tr>
-                        <th scope="row">{{userdetails.id}}</th>
-                        <td>{{userdetails.username}}</a></td>
-                        <!-- <td>{{profiledetails.first_name}}</a></td>
-                        <td>{{profiledetails.last_name}}</a></td> -->
-                        <td>{{patientdetails.role}}</td>
-                        <td>{{userdetails.email}}</td>
-                        <td>{{patientdetails.address_line1}}</td>
-                        <td>{{patientdetails.city}}</td>
-                        <td>{{patientdetails.state}}</td>
-                        <td>{{patientdetails.country}}</td>
-                        <td>{{patientdetails.pincode}}</td>
-                        
-                        <td><a href="{% url 'updatepatientdetails' userdetails.id %}">Update</a></td>
-                        <td><a href="{% url 'deletepatientdetails' userdetails.id %}">Delete</a></td>
+                        <!-- <th scope="row">{{detail.id}}</th> -->
+                        <!-- <th scope="row">{{detail.image}}</th> -->
+
+                        <th><img src="/media/{{detail.image}}" alt="Profile_pic"
+                                style="max-width:5vw;border:1px solid grey;padding:5px;"></th>
+
+                        <th scope="row">{{detail.name}}</th>
+                        <th>{{detail.phone}}</th>
+                        <th>{{detail.city}}</th>
+                        <th>{{detail.state}}</th>
+                        <th>{{detail.country}}</th>
+                        <th><a href="{% url 'appointment_form' %}" class="my-3 mx-1"><span
+                            style="border:1px solid grey;padding:5px;">Book an appointment</span></a></th>
 
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
-        
+
     </div>
     <!-- Optional JavaScript; choose one of the two! -->
 

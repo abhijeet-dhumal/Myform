@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.forms import inlineformset_factory
 from django.db.models import Q
 from form.filters import BlogFilter
-from form.forms import BlogForm, DoctorForm, PatientForm, UserRegisterForm
+from form.forms import AppointmentForm, BlogForm, DoctorForm, PatientForm, UserRegisterForm
 # create your views here 
 from .models import *
 from django.contrib.auth.forms import UserCreationForm
@@ -15,6 +15,7 @@ from . import signals
 # for flash message
 from .decorators import *
 from django.contrib import messages
+
 def LoginForm(request):
     try:
         if request.method =='POST':
@@ -241,3 +242,101 @@ def blogs_update(request,pk):
     context={'blogdetail':blogdetail,'blogform':blogform}
     return render(request,"form/blogs_update.html",context)
 
+
+# for appointments 
+@login_required    
+def doctorslist(request):
+    userdetails=User.objects.all()
+    
+    doctordetails=Doctor.objects.all()
+    
+    context={'userdetails':userdetails,"doctordetails":doctordetails}
+    return render(request,"form/doctors_list.html",context)
+
+@login_required    
+def appointment_form(request):
+    # for calendar api 
+    '''
+    clientID: 1047607298468-j2qspk4pbibggrg1bp4h9nen2c7lofu1.apps.googleusercontent.com
+    clientsecret: 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
+    '''
+    from apiclient.discovery import build
+    from google_auth_oauthlib.flow import InstalledAppFlow
+    scopes=['https://www.googleapis.com/auth/calendar']
+    flow=InstalledAppFlow.from_client_secrets_file("C:\\Users\\aksha\\Downloads\\client_secret_tv.json",scopes=scopes)
+    '''get credentials for user '''
+    # credentials=flow.run_console()
+    # pickle.dump(credentials,open("C:\\Users\\aksha\\OneDrive\\Desktop\\myform\\form\\token.pkl","wb"))
+    import pickle
+    credentials=pickle.load(open("C:\\Users\\aksha\\OneDrive\\Desktop\\myform\\form\\token.pkl","rb"))
+    # credentials=open("C:\\Users\\aksha\\OneDrive\\Desktop\\myform\\form\\token.pkl","rb")
+    # print(creden)
+    service=build("calendar","v3",credentials=credentials)
+    result=service.calendarList().list().execute()
+    # print(result['items'][0])
+
+    '''Get event '''
+    calendar_id=result['items'][0]['id']
+    result=service.events().list(calendarId=calendar_id).execute()
+    # print(result['items'][0])
+
+    '''create an event'''
+    # Refer to the Python quickstart on how to setup the environment:
+    # https://developers.google.com/calendar/quickstart/python
+    # Change the scope to 'https://www.googleapis.com/auth/calendar' and delete any
+    # stored credentials.
+
+    from datetime import datetime, timedelta
+    def create_event(start_time, summary=None,duration=45,description=None,location=None):
+        # matches=list(datefinder.find_dates(start_time))
+        # if len(matches):
+        #     start_time=matches[0]
+        end_time=start_time + timedelta(minutes=duration)
+        timeZone='Asia/Kolkata'
+        event = {
+        'summary': summary,
+        'location': location,
+        'description': description,
+        'start': {
+            'dateTime': start_time.strftime("%Y-%m-%dT%H:%M:%S"),
+            'timeZone': timeZone,
+        },
+        'end': {
+            'dateTime': end_time.strftime("%Y-%m-%dT%H:%M:%S"),
+            'timeZone': timeZone,
+        },
+        'reminders': {
+            'useDefault': False,
+            'overrides': [
+            {'method': 'email', 'minutes': 24 * 60},
+            {'method': 'popup', 'minutes': 10},
+            ],
+        },
+        }
+        return service.events().insert(calendarId=calendar_id,body=event).execute()
+
+    current_user=request.user
+    appointment_details=AppointmentForm(request.POST)
+    if request.method=='POST':
+        appointment_details=AppointmentForm(request.POST)
+        if appointment_details.is_valid():
+            appointment_details.save()
+            start_time=appointment_details.cleaned_data.get('Starttime_of_appointment')
+            end_time=start_time + timedelta(minutes=45)
+            doctor=appointment_details.cleaned_data.get('doctor')
+            speciality=appointment_details.cleaned_data.get('speciality')
+            print(start_time)
+            create_event(start_time,"Appointment",45,f"Appointment with 'Dr.{doctor.name}' regarding '{speciality}'-required speciality cure.")
+            return redirect('appointments') 
+
+    context={'current_user':current_user,"appointment_details":appointment_details}
+    return render(request,"form/appointments_form.html",context)
+
+@login_required    
+def appointments(request):
+    current_user=request.user
+    appointment_details=Appointment.objects.all()
+
+    context={'current_user':current_user,"appointment_details":appointment_details}
+    return render(request,"form/appointments.html",context)
+    
