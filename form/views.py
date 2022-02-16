@@ -1,3 +1,4 @@
+from __future__ import print_function
 from django import contrib
 from django.shortcuts import render, redirect
 from django.forms import inlineformset_factory
@@ -16,7 +17,79 @@ from . import signals
 from .decorators import *
 from django.contrib import messages
 
-def LoginForm(request):
+def home(request):
+    context={}
+    return render(request,"form/home.html",context)
+
+import httplib2
+import os
+
+from apiclient import discovery
+import oauth2client
+from oauth2client import client
+from oauth2client import tools
+from oauth2client import file 
+
+import datetime
+
+try:
+    import argparse
+    flags = tools.argparser.parse_args([])
+except ImportError:
+    flags = None
+
+# If modifying these scopes, delete your previously saved credentials
+# at ~/.credentials/calendar-python-quickstart.json
+SCOPES = 'https://www.googleapis.com/auth/calendar'
+CLIENT_SECRET_FILE = 'C:\\Users\\aksha\\Downloads\\client_secret_web.json'
+APPLICATION_NAME = 'HealthManager'
+
+def get_credentials():
+    """Gets valid user credentials from storage.
+
+    If nothing has been stored, or if the stored credentials are invalid,
+    the OAuth2 flow is completed to obtain the new credentials.
+
+    Returns:
+        Credentials, the obtained credential.
+    """
+    home_dir = os.path.expanduser('~')
+    credential_dir = os.path.join(home_dir, '.credentials')
+    if not os.path.exists(credential_dir):
+        os.makedirs(credential_dir)
+    credential_path = os.path.join(credential_dir,
+                                   'C:\\Users\\aksha\\OneDrive\\Desktop\\myform\\form\\calendar-python-quickstart.json')
+
+    store = oauth2client.file.Storage(credential_path)
+    credentials = store.get()
+    if not credentials or credentials.invalid:
+        flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
+        flow.user_agent = APPLICATION_NAME
+        if flags:
+            credentials = tools.run_flow(flow, store, flags)
+        else: # Needed only for compatibility with Python 2.6
+            credentials = tools.run(flow, store)
+        print('Storing credentials to ' + credential_path)
+    return credentials
+
+    
+"""Shows basic usage of the Google Calendar API.
+
+Creates a Google Calendar API service object and outputs a list of the next
+    10 events on the user's calendar.
+"""
+
+# Refer to the Python quickstart on how to setup the environment:
+# https://developers.google.com/google-apps/calendar/quickstart/python
+# Change the scope to 'https://www.googleapis.com/auth/calendar' and delete any
+# stored credentials.
+
+
+
+from datetime import datetime, timedelta
+
+
+def DoctorLoginForm(request):
     try:
         if request.method =='POST':
             username = request.POST.get('username')
@@ -24,7 +97,7 @@ def LoginForm(request):
             user = authenticate(request, username = username , password = password)     
             if user is not None:
                 login(request, user)
-                return redirect('usernames')
+                return redirect('doctorusernames')
             else:
                 return HttpResponse("<h1>Registered email or Password is incorrect !!!</h1>")
               
@@ -32,9 +105,29 @@ def LoginForm(request):
         print(e)                
 
     context={}
-    return render(request,"form/LoginForm.html",context)
+    return render(request,"form/DoctorLoginForm.html",context)
+
+def PatientLoginForm(request):
+    try:
+        if request.method =='POST':
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            user = authenticate(request, username = username , password = password)     
+            if user is not None:
+                login(request, user)
+                return redirect('patientusernames')
+            else:
+                return HttpResponse("<h1>Registered email or Password is incorrect !!!</h1>")
+              
+    except Exception as e:
+        print(e)                
+
+    context={}
+    return render(request,"form/PatientLoginForm.html",context)
     
 def doctor_registerPage(request):
+    f=open("C:\\Users\\aksha\\OneDrive\\Desktop\\myform\\form\\calendar-python-quickstart.json","r+")
+    f.truncate()
     if request.method=='POST':
         form1 = UserRegisterForm(request.POST)
         doctor_reg_form = DoctorForm(request.POST)
@@ -49,7 +142,11 @@ def doctor_registerPage(request):
             username = form1.cleaned_data.get('username')
             messages.success(request, 'Account is created for ' + username)
 
-            return redirect('LoginForm')    
+            credentials = get_credentials()
+            http = credentials.authorize(httplib2.Http())
+            global service
+            service = discovery.build('calendar', 'v3', http=http)  
+            return redirect('DoctorLoginForm')  
     else:
         form1 = UserRegisterForm()
         doctor_reg_form = DoctorForm()           
@@ -57,6 +154,45 @@ def doctor_registerPage(request):
     context = {}   
     context.update({'form1':form1,'doctor_reg_form':doctor_reg_form}) 
     return render(request, 'form/doctor_registerPage.html',context)
+
+
+def create_event(start_time,patient,summary=None,duration=45,description=None,location=None):
+        # matches=list(datefinder.find_dates(start_time))
+        # if len(matches):
+        #     start_time=matches[0]
+    end_time=start_time + timedelta(minutes=duration)
+    timeZone='Asia/Kolkata'
+    event = {
+    'summary': f'Appointment with {patient.name}',
+    'location': 'Pune',
+    'description': description,
+    'start': {
+        'dateTime': start_time.strftime("%Y-%m-%dT%H:%M:%S"),
+        'timeZone': timeZone,
+    },
+    'end': {
+        'dateTime': end_time.strftime("%Y-%m-%dT%H:%M:%S"),
+        'timeZone': timeZone,
+    },
+    'recurrence': [
+        'RRULE:FREQ=DAILY;COUNT=2'
+    ],
+    # 'attendees': [
+    #     # {'email': 'abhijeetdhumal652@gmail.com'},
+    #     # {'email':'akshaydhumal652@'}
+    # ],
+    'reminders': {
+        'useDefault': False,
+        'overrides': [
+        {'method': 'email', 'minutes': 24 * 60},
+        {'method': 'popup', 'minutes': 10},
+        ],
+    },
+    }
+
+    event = service.events().insert(calendarId='primary', body=event).execute()
+    print ('Event created: %s' % (event.get('htmlLink')))
+
 
 def patient_registerPage(request):
     if request.method=='POST':
@@ -66,14 +202,14 @@ def patient_registerPage(request):
             form1.save()
             user = form1.save()
             user.refresh_from_db()  # load the profile instance created by the signal
-            profile = Patient.objects.create(name=user.name)
+            profile = Patient.objects.create(name=user)
             patient_reg_form = PatientForm(request.POST,request.FILES,instance=profile)
             patient_reg_form.full_clean()
             patient_reg_form.save()
             username = form1.cleaned_data.get('username')
             messages.success(request, 'Account is created for ' + username)
 
-            return redirect('LoginForm')        
+            return redirect('PatientLoginForm')        
     else:
         form1 = UserRegisterForm()
         patient_reg_form = PatientForm()
@@ -91,7 +227,7 @@ def patient_registerPage(request):
 #     return render(request, 'UserDashboard.html',context) 
 
 @login_required
-def usernames(request):
+def doctorusernames(request):
     userdetails=User.objects.all()
     doctordetails=Doctor.objects.all()
     patientdetails=Patient.objects.all()
@@ -99,14 +235,22 @@ def usernames(request):
     print(f"current:{current_user.id}")
     
     context={"userdetails":userdetails,"doctordetails":doctordetails,'patientdetails':patientdetails,"current_user":current_user}
-    return render(request,"form/username.html",context)
+    return render(request,"form/doctorusername.html",context)
+
+@login_required
+def patientusernames(request):
+    userdetails=User.objects.all()
+    doctordetails=Doctor.objects.all()
+    patientdetails=Patient.objects.all()
+    current_user = request.user
+    
+    context={"userdetails":userdetails,"doctordetails":doctordetails,'patientdetails':patientdetails,"current_user":current_user}
+    return render(request,"form/patientusername.html",context)
 
 @login_required
 def doctor_details(request,pk):
     userdetails=User.objects.get(id=pk)
-    
     doctordetails=Doctor.objects.get(id=pk)
-    
     context={'userdetails':userdetails,"doctordetails":doctordetails}
     return render(request,"form/doctor_userdetails.html",context)
 
@@ -135,7 +279,7 @@ def updatedoctordetails(request,pk):
         if registerform.is_valid() and profileform.is_valid():
             registerform.save()
             profileform.save()
-            return redirect('usernames')
+            return redirect('doctorusernames')
         else:
             messages.warning(request,f'Username or Password is incorrect !!! ')
 
@@ -158,7 +302,7 @@ def updatepatientdetails(request,pk):
         if registerform.is_valid() and profileform.is_valid():
             registerform.save()
             profileform.save()
-            return redirect('usernames')
+            return redirect('patientusernames')
         else:
             messages.warning(request,f'Username or Password is incorrect !!! ')
 
@@ -172,7 +316,7 @@ def deletedoctordetails(request,pk):
     
     if request.method=='POST':
         userdetails.delete()
-        return redirect('usernames')
+        return redirect('doctorusernames')
 
     return render(request,"form/delete.html",{'obj':userdetails})
 
@@ -182,14 +326,14 @@ def deletepatientdetails(request,pk):
     
     if request.method=='POST':
         userdetails.delete()
-        return redirect('usernames')
+        return redirect('patientusernames')
 
     return render(request,"form/delete.html",{'obj':userdetails})
 
 @login_required
 def logoutuser(request):
     logout(request)
-    return redirect('LoginForm')
+    return redirect('home')
 
 @login_required
 def blogs_view(request):
@@ -252,69 +396,9 @@ def doctorslist(request):
     
     context={'userdetails':userdetails,"doctordetails":doctordetails}
     return render(request,"form/doctors_list.html",context)
-
+    
 @login_required    
 def appointment_form(request):
-    # for calendar api 
-    '''
-    clientID: 1047607298468-j2qspk4pbibggrg1bp4h9nen2c7lofu1.apps.googleusercontent.com
-    clientsecret: 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
-    '''
-    from apiclient.discovery import build
-    from google_auth_oauthlib.flow import InstalledAppFlow
-    scopes=['https://www.googleapis.com/auth/calendar']
-    flow=InstalledAppFlow.from_client_secrets_file("C:\\Users\\aksha\\Downloads\\client_secret_tv.json",scopes=scopes)
-    '''get credentials for user '''
-    # credentials=flow.run_console()
-    # pickle.dump(credentials,open("C:\\Users\\aksha\\OneDrive\\Desktop\\myform\\form\\token.pkl","wb"))
-    import pickle
-    credentials=pickle.load(open("C:\\Users\\aksha\\OneDrive\\Desktop\\myform\\form\\token.pkl","rb"))
-    # credentials=open("C:\\Users\\aksha\\OneDrive\\Desktop\\myform\\form\\token.pkl","rb")
-    # print(creden)
-    service=build("calendar","v3",credentials=credentials)
-    result=service.calendarList().list().execute()
-    # print(result['items'][0])
-
-    '''Get event '''
-    calendar_id=result['items'][0]['id']
-    result=service.events().list(calendarId=calendar_id).execute()
-    # print(result['items'][0])
-
-    '''create an event'''
-    # Refer to the Python quickstart on how to setup the environment:
-    # https://developers.google.com/calendar/quickstart/python
-    # Change the scope to 'https://www.googleapis.com/auth/calendar' and delete any
-    # stored credentials.
-
-    from datetime import datetime, timedelta
-    def create_event(start_time, summary=None,duration=45,description=None,location=None):
-        # matches=list(datefinder.find_dates(start_time))
-        # if len(matches):
-        #     start_time=matches[0]
-        end_time=start_time + timedelta(minutes=duration)
-        timeZone='Asia/Kolkata'
-        event = {
-        'summary': summary,
-        'location': location,
-        'description': description,
-        'start': {
-            'dateTime': start_time.strftime("%Y-%m-%dT%H:%M:%S"),
-            'timeZone': timeZone,
-        },
-        'end': {
-            'dateTime': end_time.strftime("%Y-%m-%dT%H:%M:%S"),
-            'timeZone': timeZone,
-        },
-        'reminders': {
-            'useDefault': False,
-            'overrides': [
-            {'method': 'email', 'minutes': 24 * 60},
-            {'method': 'popup', 'minutes': 10},
-            ],
-        },
-        }
-        return service.events().insert(calendarId=calendar_id,body=event).execute()
-
     current_user=request.user
     appointment_details=AppointmentForm(request.POST)
     if request.method=='POST':
@@ -323,10 +407,10 @@ def appointment_form(request):
             appointment_details.save()
             start_time=appointment_details.cleaned_data.get('Starttime_of_appointment')
             end_time=start_time + timedelta(minutes=45)
-            doctor=appointment_details.cleaned_data.get('doctor')
+            patient=appointment_details.cleaned_data.get('patient')
             speciality=appointment_details.cleaned_data.get('speciality')
             print(start_time)
-            create_event(start_time,"Appointment",45,f"Appointment with 'Dr.{doctor.name}' regarding '{speciality}'-required speciality cure.")
+            create_event(start_time,patient,"Appointment",45,f"Appointment with 'Mr/Ms.{patient.name}' regarding '{speciality}'-required speciality cure.")
             return redirect('appointments') 
 
     context={'current_user':current_user,"appointment_details":appointment_details}
