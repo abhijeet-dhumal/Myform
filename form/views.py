@@ -12,10 +12,12 @@ from django.contrib.auth import authenticate ,login, logout
 from django.contrib.auth.decorators import *
 from django.contrib.auth.models import Group
 from django.http import HttpResponse
-from . import signals
+from .decorators import unauthenticated_user, allowed_users
+from django.contrib.auth.models import Group
 # for flash message
 from .decorators import *
 from django.contrib import messages
+
 
 def home(request):
     context={}
@@ -88,7 +90,7 @@ Creates a Google Calendar API service object and outputs a list of the next
 
 from datetime import datetime, timedelta
 
-
+# @unauthenticated_user
 def DoctorLoginForm(request):
     try:
         if request.method =='POST':
@@ -107,6 +109,7 @@ def DoctorLoginForm(request):
     context={}
     return render(request,"form/DoctorLoginForm.html",context)
 
+# @unauthenticated_user
 def PatientLoginForm(request):
     try:
         if request.method =='POST':
@@ -124,7 +127,8 @@ def PatientLoginForm(request):
 
     context={}
     return render(request,"form/PatientLoginForm.html",context)
-    
+
+# @unauthenticated_user   
 def doctor_registerPage(request):
     f=open("C:\\Users\\aksha\\OneDrive\\Desktop\\myform\\form\\calendar-python-quickstart.json","r+")
     f.truncate()
@@ -140,6 +144,11 @@ def doctor_registerPage(request):
             doctor_reg_form.full_clean()
             doctor_reg_form.save()
             username = form1.cleaned_data.get('username')
+
+            # to assign group name 
+            group=Group.objects.get(name='doctor')
+            user.groups.add(group)
+            
             messages.success(request, 'Account is created for ' + username)
 
             credentials = get_credentials()
@@ -193,7 +202,7 @@ def create_event(start_time,patient,summary=None,duration=45,description=None,lo
     event = service.events().insert(calendarId='primary', body=event).execute()
     print ('Event created: %s' % (event.get('htmlLink')))
 
-
+# @unauthenticated_user
 def patient_registerPage(request):
     if request.method=='POST':
         form1 = UserRegisterForm(request.POST)
@@ -208,6 +217,10 @@ def patient_registerPage(request):
             patient_reg_form.save()
             username = form1.cleaned_data.get('username')
             messages.success(request, 'Account is created for ' + username)
+            
+            # to assign group name 
+            group=Group.objects.get(name='patient')
+            user.groups.add(group)
 
             return redirect('PatientLoginForm')        
     else:
@@ -227,17 +240,18 @@ def patient_registerPage(request):
 #     return render(request, 'UserDashboard.html',context) 
 
 @login_required
+@allowed_users(allowed_roles=['admin','doctor'])
 def doctorusernames(request):
     userdetails=User.objects.all()
     doctordetails=Doctor.objects.all()
     patientdetails=Patient.objects.all()
     current_user = request.user
-    print(f"current:{current_user.id}")
     
     context={"userdetails":userdetails,"doctordetails":doctordetails,'patientdetails':patientdetails,"current_user":current_user}
     return render(request,"form/doctorusername.html",context)
 
 @login_required
+@allowed_users(allowed_roles=['admin','patient'])
 def patientusernames(request):
     userdetails=User.objects.all()
     doctordetails=Doctor.objects.all()
@@ -248,6 +262,7 @@ def patientusernames(request):
     return render(request,"form/patientusername.html",context)
 
 @login_required
+@allowed_users(allowed_roles=['admin','doctor'])
 def doctor_details(request,pk):
     userdetails=User.objects.get(id=pk)
     doctordetails=Doctor.objects.get(id=pk)
@@ -255,6 +270,7 @@ def doctor_details(request,pk):
     return render(request,"form/doctor_userdetails.html",context)
 
 @login_required
+@allowed_users(allowed_roles=['admin','patient'])
 def patient_details(request,pk):
     userdetails=User.objects.get(id=pk)
     
@@ -264,7 +280,8 @@ def patient_details(request,pk):
     context={'userdetails':userdetails,'patientdetails':patientdetails}
     return render(request,"form/patient_userdetails.html",context)
 
-@login_required    
+@login_required   
+@allowed_users(allowed_roles=['admin','doctor']) 
 def updatedoctordetails(request,pk):
     userdetail=User.objects.get(id=pk)
     profiledetail=Doctor.objects.get(id=pk)
@@ -288,6 +305,7 @@ def updatedoctordetails(request,pk):
     return render(request,"form/userdetailsform.html",context)
 
 @login_required    
+@allowed_users(allowed_roles=['admin','patient'])
 def updatepatientdetails(request,pk):
     userdetail=User.objects.get(id=pk)
     profiledetail=Patient.objects.get(id=pk)
@@ -311,6 +329,7 @@ def updatepatientdetails(request,pk):
     return render(request,"form/userdetailsform.html",context)
 
 @login_required
+@allowed_users(allowed_roles=['admin','doctor'])
 def deletedoctordetails(request,pk):
     userdetails=User.objects.get(id=pk)
     
@@ -321,6 +340,7 @@ def deletedoctordetails(request,pk):
     return render(request,"form/delete.html",{'obj':userdetails})
 
 @login_required
+@allowed_users(allowed_roles=['admin','patient'])
 def deletepatientdetails(request,pk):
     userdetails=User.objects.get(id=pk)
     
@@ -336,6 +356,7 @@ def logoutuser(request):
     return redirect('home')
 
 @login_required
+@allowed_users(allowed_roles=['admin','doctor','patient'])
 def blogs_view(request):
     blogdetail=Blog.objects.filter(draft=False).all()
     myFilter = BlogFilter(request.GET, queryset= blogdetail)
@@ -348,6 +369,7 @@ def blogs_view(request):
     return render(request,"form/blogs_view.html",context)
 
 @login_required
+@allowed_users(allowed_roles=['admin','doctor'])
 def blogs_drafts(request):
     blogdetail=Blog.objects.filter(draft=True).all()
     myFilter = BlogFilter(request.GET, queryset= blogdetail)
@@ -361,6 +383,7 @@ def blogs_drafts(request):
 
 
 @login_required
+@allowed_users(allowed_roles=['admin','doctor'])
 def blogs_update(request,pk):
     blogdetail=Blog.objects.all()
     blogform=BlogForm(request.POST)
@@ -389,6 +412,7 @@ def blogs_update(request,pk):
 
 # for appointments 
 @login_required    
+@allowed_users(allowed_roles=['admin','doctor','patient'])
 def doctorslist(request):
     userdetails=User.objects.all()
     
@@ -397,7 +421,8 @@ def doctorslist(request):
     context={'userdetails':userdetails,"doctordetails":doctordetails}
     return render(request,"form/doctors_list.html",context)
     
-@login_required    
+@login_required  
+@allowed_users(allowed_roles=['admin','patient'])  
 def appointment_form(request):
     current_user=request.user
     appointment_details=AppointmentForm(request.POST)
@@ -416,7 +441,8 @@ def appointment_form(request):
     context={'current_user':current_user,"appointment_details":appointment_details}
     return render(request,"form/appointments_form.html",context)
 
-@login_required    
+@login_required   
+@allowed_users(allowed_roles=['admin','doctor','patient']) 
 def appointments(request):
     current_user=request.user
     appointment_details=Appointment.objects.all()
