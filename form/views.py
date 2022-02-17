@@ -23,72 +23,72 @@ def home(request):
     context={}
     return render(request,"form/home.html",context)
 
-import httplib2
-import os
+# import httplib2
+# import os
 
-from apiclient import discovery
-import oauth2client
-from oauth2client import client
-from oauth2client import tools
-from oauth2client import file 
+# from apiclient import discovery
+# import oauth2client
+# from oauth2client import client
+# from oauth2client import tools
+# from oauth2client import file 
 
-import datetime
+# import datetime
 
-try:
-    import argparse
-    flags = tools.argparser.parse_args([])
-except ImportError:
-    flags = None
+# try:
+#     import argparse
+#     flags = tools.argparser.parse_args([])
+# except ImportError:
+#     flags = None
 
-# If modifying these scopes, delete your previously saved credentials
-# at ~/.credentials/calendar-python-quickstart.json
-SCOPES = 'https://www.googleapis.com/auth/calendar'
-CLIENT_SECRET_FILE = 'C:\\Users\\aksha\\Downloads\\client_secret_web.json'
-APPLICATION_NAME = 'HealthManager'
+# # If modifying these scopes, delete your previously saved credentials
+# # at ~/.credentials/calendar-python-quickstart.json
+# SCOPES = 'https://www.googleapis.com/auth/calendar'
+# CLIENT_SECRET_FILE = 'C:\\Users\\aksha\\Downloads\\client_secret_web.json'
+# APPLICATION_NAME = 'HealthManager'
 
-def get_credentials():
-    """Gets valid user credentials from storage.
+# def get_credentials():
+#     """Gets valid user credentials from storage.
 
-    If nothing has been stored, or if the stored credentials are invalid,
-    the OAuth2 flow is completed to obtain the new credentials.
+#     If nothing has been stored, or if the stored credentials are invalid,
+#     the OAuth2 flow is completed to obtain the new credentials.
 
-    Returns:
-        Credentials, the obtained credential.
-    """
-    home_dir = os.path.expanduser('~')
-    credential_dir = os.path.join(home_dir, '.credentials')
-    if not os.path.exists(credential_dir):
-        os.makedirs(credential_dir)
-    credential_path = os.path.join(credential_dir,
-                                   'C:\\Users\\aksha\\OneDrive\\Desktop\\myform\\form\\calendar-python-quickstart.json')
+#     Returns:
+#         Credentials, the obtained credential.
+#     """
+#     home_dir = os.path.expanduser('~')
+#     credential_dir = os.path.join(home_dir, '.credentials')
+#     if not os.path.exists(credential_dir):
+#         os.makedirs(credential_dir)
+#     credential_path = os.path.join(credential_dir,
+#                                    'C:\\Users\\aksha\\OneDrive\\Desktop\\myform\\form\\calendar-python-quickstart.json')
 
-    store = oauth2client.file.Storage(credential_path)
-    credentials = store.get()
-    if not credentials or credentials.invalid:
-        flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
-        flow.user_agent = APPLICATION_NAME
-        if flags:
-            credentials = tools.run_flow(flow, store, flags)
-        else: # Needed only for compatibility with Python 2.6
-            credentials = tools.run(flow, store)
-        print('Storing credentials to ' + credential_path)
-    return credentials
+#     store = oauth2client.file.Storage(credential_path)
+#     credentials = store.get()
+#     if not credentials or credentials.invalid:
+#         flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
+#         flow.user_agent = APPLICATION_NAME
+#         if flags:
+#             credentials = tools.run_flow(flow, store, flags)
+#         else: # Needed only for compatibility with Python 2.6
+#             credentials = tools.run(flow, store)
+#         print('Storing credentials to ' + credential_path)
+#     return credentials
 
     
-"""Shows basic usage of the Google Calendar API.
+# """Shows basic usage of the Google Calendar API.
 
-Creates a Google Calendar API service object and outputs a list of the next
-    10 events on the user's calendar.
-"""
+# Creates a Google Calendar API service object and outputs a list of the next
+#     10 events on the user's calendar.
+# """
 
-# Refer to the Python quickstart on how to setup the environment:
-# https://developers.google.com/google-apps/calendar/quickstart/python
-# Change the scope to 'https://www.googleapis.com/auth/calendar' and delete any
-# stored credentials.
+# # Refer to the Python quickstart on how to setup the environment:
+# # https://developers.google.com/google-apps/calendar/quickstart/python
+# # Change the scope to 'https://www.googleapis.com/auth/calendar' and delete any
+# # stored credentials.
 
 
 
-from datetime import datetime, timedelta
+# from datetime import datetime, timedelta
 
 # @unauthenticated_user
 def DoctorLoginForm(request):
@@ -130,8 +130,8 @@ def PatientLoginForm(request):
 
 # @unauthenticated_user   
 def doctor_registerPage(request):
-    f=open("C:\\Users\\aksha\\OneDrive\\Desktop\\myform\\form\\calendar-python-quickstart.json","r+")
-    f.truncate()
+#     f=open("C:\\Users\\aksha\\OneDrive\\Desktop\\myform\\form\\calendar-python-quickstart.json","r+")
+#     f.truncate()
     if request.method=='POST':
         form1 = UserRegisterForm(request.POST)
         doctor_reg_form = DoctorForm(request.POST)
@@ -151,10 +151,11 @@ def doctor_registerPage(request):
             
             messages.success(request, 'Account is created for ' + username)
 
-            credentials = get_credentials()
-            http = credentials.authorize(httplib2.Http())
-            global service
-            service = discovery.build('calendar', 'v3', http=http)  
+#             credentials = get_credentials()
+#             http = credentials.authorize(httplib2.Http())
+#             global service
+#             service = discovery.build('calendar', 'v3', http=http)  
+
             return redirect('DoctorLoginForm')  
     else:
         form1 = UserRegisterForm()
@@ -165,42 +166,42 @@ def doctor_registerPage(request):
     return render(request, 'form/doctor_registerPage.html',context)
 
 
-def create_event(start_time,patient,summary=None,duration=45,description=None,location=None):
-        # matches=list(datefinder.find_dates(start_time))
-        # if len(matches):
-        #     start_time=matches[0]
-    end_time=start_time + timedelta(minutes=duration)
-    timeZone='Asia/Kolkata'
-    event = {
-    'summary': f'Appointment with {patient.name}',
-    'location': 'Pune',
-    'description': description,
-    'start': {
-        'dateTime': start_time.strftime("%Y-%m-%dT%H:%M:%S"),
-        'timeZone': timeZone,
-    },
-    'end': {
-        'dateTime': end_time.strftime("%Y-%m-%dT%H:%M:%S"),
-        'timeZone': timeZone,
-    },
-    'recurrence': [
-        'RRULE:FREQ=DAILY;COUNT=2'
-    ],
-    # 'attendees': [
-    #     # {'email': 'abhijeetdhumal652@gmail.com'},
-    #     # {'email':'akshaydhumal652@'}
-    # ],
-    'reminders': {
-        'useDefault': False,
-        'overrides': [
-        {'method': 'email', 'minutes': 24 * 60},
-        {'method': 'popup', 'minutes': 10},
-        ],
-    },
-    }
+# def create_event(start_time,patient,summary=None,duration=45,description=None,location=None):
+#         # matches=list(datefinder.find_dates(start_time))
+#         # if len(matches):
+#         #     start_time=matches[0]
+#     end_time=start_time + timedelta(minutes=duration)
+#     timeZone='Asia/Kolkata'
+#     event = {
+#     'summary': f'Appointment with {patient.name}',
+#     'location': 'Pune',
+#     'description': description,
+#     'start': {
+#         'dateTime': start_time.strftime("%Y-%m-%dT%H:%M:%S"),
+#         'timeZone': timeZone,
+#     },
+#     'end': {
+#         'dateTime': end_time.strftime("%Y-%m-%dT%H:%M:%S"),
+#         'timeZone': timeZone,
+#     },
+#     'recurrence': [
+#         'RRULE:FREQ=DAILY;COUNT=2'
+#     ],
+#     # 'attendees': [
+#     #     # {'email': 'abhijeetdhumal652@gmail.com'},
+#     #     # {'email':'akshaydhumal652@'}
+#     # ],
+#     'reminders': {
+#         'useDefault': False,
+#         'overrides': [
+#         {'method': 'email', 'minutes': 24 * 60},
+#         {'method': 'popup', 'minutes': 10},
+#         ],
+#     },
+#     }
 
-    event = service.events().insert(calendarId='primary', body=event).execute()
-    print ('Event created: %s' % (event.get('htmlLink')))
+#     event = service.events().insert(calendarId='primary', body=event).execute()
+#     print ('Event created: %s' % (event.get('htmlLink')))
 
 # @unauthenticated_user
 def patient_registerPage(request):
@@ -392,16 +393,6 @@ def blogs_update(request,pk):
         if blogform.is_valid():
             action = blogform.cleaned_data.get('complete')
             blogform.save()
-            # if action=='Post content as a blog':
-            # else:
-            #     seconds = Blog.objects.all()
-            #     for second in seconds:
-            #         for i in second.objects.filter(link_field=second):
-            #             print(i.id)
-            #     blog_content = blogform.cleaned_data.get('content')
-            #     blog_id=blogform.cleaned_data.get('id')
-            #     print("id: ",blog_id)
-            #     pass
             return redirect('usernames')
         else:
             messages.warning(request,f'Username or Password is incorrect !!! ')
@@ -430,12 +421,12 @@ def appointment_form(request):
         appointment_details=AppointmentForm(request.POST)
         if appointment_details.is_valid():
             appointment_details.save()
-            start_time=appointment_details.cleaned_data.get('Starttime_of_appointment')
-            end_time=start_time + timedelta(minutes=45)
-            patient=appointment_details.cleaned_data.get('patient')
-            speciality=appointment_details.cleaned_data.get('speciality')
-            print(start_time)
-            create_event(start_time,patient,"Appointment",45,f"Appointment with 'Mr/Ms.{patient.name}' regarding '{speciality}'-required speciality cure.")
+#             start_time=appointment_details.cleaned_data.get('Starttime_of_appointment')
+#             end_time=start_time + timedelta(minutes=45)
+#             patient=appointment_details.cleaned_data.get('patient')
+#             speciality=appointment_details.cleaned_data.get('speciality')
+#             print(start_time)
+#             create_event(start_time,patient,"Appointment",45,f"Appointment with 'Mr/Ms.{patient.name}' regarding '{speciality}'-required speciality cure.")
             return redirect('appointments') 
 
     context={'current_user':current_user,"appointment_details":appointment_details}
