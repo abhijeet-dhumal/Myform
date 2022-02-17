@@ -3,7 +3,12 @@ from django.db import models
 from django.contrib.auth.models import PermissionsMixin, User, UserManager
 from django.db.models.deletion import CASCADE, SET_NULL
 from django.contrib.auth.models import BaseUserManager, AbstractUser
+from django.db.models import DateTimeField
 
+class DateTimeWithoutTZField(DateTimeField):
+    def db_type(self, connection):
+        return 'timestamp'
+    
 class Doctor(models.Model):
     user = models.OneToOneField(User, null=True, on_delete= models.CASCADE)
     name = models.CharField("Name", max_length=50, blank=True)
@@ -80,7 +85,7 @@ class Appointment(models.Model):
     patient = models.ForeignKey(Patient, null=True, on_delete= models.CASCADE)
     speciality=models.CharField("Required speciality ", max_length=50, blank=True)
     # date_of_appointment=models.DateField("Date of appointment ", max_length=50, blank=True)
-    Starttime_of_appointment=models.DateTimeField("Start-time of appointment ", max_length=50, blank=True)
+    Starttime_of_appointment=models.DateTimeWithoutTZField("Start-time of appointment ", max_length=50, blank=True)
 
     def __str__(self):
         if self.speciality==None:
